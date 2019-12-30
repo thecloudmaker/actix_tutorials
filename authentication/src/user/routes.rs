@@ -6,31 +6,31 @@ use serde_json::json;
 use uuid::Uuid;
 
 #[get("/users")]
-fn find_all() -> Result<HttpResponse, ApiError> {
+async fn find_all() -> Result<HttpResponse, ApiError> {
     let users = User::find_all()?;
     Ok(HttpResponse::Ok().json(users))
 }
 
 #[get("/users/{id}")]
-fn find(id: web::Path<Uuid>) -> Result<HttpResponse, ApiError> {
+async fn find(id: web::Path<Uuid>) -> Result<HttpResponse, ApiError> {
     let user = User::find(id.into_inner())?;
     Ok(HttpResponse::Ok().json(user))
 }
 
 #[post("/users")]
-fn create(user: web::Json<UserMessage>) -> Result<HttpResponse, ApiError> {
+async fn create(user: web::Json<UserMessage>) -> Result<HttpResponse, ApiError> {
     let user = User::create(user.into_inner())?;
     Ok(HttpResponse::Ok().json(user))
 }
 
 #[put("/users/{id}")]
-fn update(id: web::Path<Uuid>, user: web::Json<UserMessage>) -> Result<HttpResponse, ApiError> {
+async fn update(id: web::Path<Uuid>, user: web::Json<UserMessage>) -> Result<HttpResponse, ApiError> {
     let user = User::update(id.into_inner(), user.into_inner())?;
     Ok(HttpResponse::Ok().json(user))
 }
 
 #[delete("/users/{id}")]
-fn delete(id: web::Path<Uuid>) -> Result<HttpResponse, ApiError> {
+async fn delete(id: web::Path<Uuid>) -> Result<HttpResponse, ApiError> {
     let num_deleted = User::delete(id.into_inner())?;
     Ok(HttpResponse::Ok().json(json!({ "deleted": num_deleted })))
 }

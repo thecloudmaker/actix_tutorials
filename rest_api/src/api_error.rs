@@ -34,7 +34,7 @@ impl From<DieselError> for ApiError {
 }
 
 impl ResponseError for ApiError {
-    fn render_response(&self) -> HttpResponse {
+    fn error_response(&self) -> HttpResponse {
         let status_code = match StatusCode::from_u16(self.status_code) {
             Ok(status_code) => status_code,
             Err(_) => StatusCode::INTERNAL_SERVER_ERROR,

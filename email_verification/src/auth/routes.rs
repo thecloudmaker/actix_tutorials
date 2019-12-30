@@ -11,7 +11,7 @@ use serde_json::json;
 use uuid::Uuid;
 
 #[post("/invite")]
-fn invite(body: web::Json<EmailVerificationTokenMessage>) -> Result<HttpResponse, ApiError> {
+async fn invite(body: web::Json<EmailVerificationTokenMessage>) -> Result<HttpResponse, ApiError> {
     let body = body.into_inner();
     let token = EmailVerificationToken::create(body.clone())?;
     let token_string = hex::encode(token.id);
@@ -33,10 +33,10 @@ struct RegistrationMessage {
 }
 
 #[post("/register")]
-fn register(body: web::Json<RegistrationMessage>) -> Result<HttpResponse, ApiError> {
+async fn register(body: web::Json<RegistrationMessage>) -> Result<HttpResponse, ApiError> {
     let body = body.into_inner();
     let token_id = hex::decode(body.token)
-        .map_err(|e| ApiError::new(403, "Invalid token"))?;
+        .map_err(|_| ApiError::new(403, "Invalid token"))?;
     
     let token = EmailVerificationToken::find(&token_id)
         .map_err(|e| {
@@ -60,7 +60,7 @@ fn register(body: web::Json<RegistrationMessage>) -> Result<HttpResponse, ApiErr
 }
 
 #[post("/sign-in")]
-fn sign_in(credentials: web::Json<UserMessage>, session: Session) -> Result<HttpResponse, ApiError> {
+async fn sign_in(credentials: web::Json<UserMessage>, session: Session) -> Result<HttpResponse, ApiError> {
     let credentials = credentials.into_inner();
 
     let user = User::find_by_email(credentials.email)
@@ -85,7 +85,7 @@ fn sign_in(credentials: web::Json<UserMessage>, session: Session) -> Result<Http
 }
 
 #[post("/sign-out")]
-fn sign_out(session: Session) -> Result<HttpResponse, ApiError> {
+async fn sign_out(session: Session) -> Result<HttpResponse, ApiError> {
     let id: Option<Uuid> = session.get("user_id")?;
 
     if let Some(_) = id {
@@ -98,7 +98,7 @@ fn sign_out(session: Session) -> Result<HttpResponse, ApiError> {
 }
 
 #[get("/who-am-i")]
-fn who_am_i(session: Session) -> Result<HttpResponse, ApiError> {
+async fn who_am_i(session: Session) -> Result<HttpResponse, ApiError> {
     let id: Option<Uuid> = session.get("user_id")?;
 
     if let Some(id) = id {

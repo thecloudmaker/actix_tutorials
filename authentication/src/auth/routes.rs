@@ -6,13 +6,13 @@ use serde_json::json;
 use uuid::Uuid;
 
 #[post("/register")]
-fn register(user: web::Json<UserMessage>) -> Result<HttpResponse, ApiError> {
+async fn register(user: web::Json<UserMessage>) -> Result<HttpResponse, ApiError> {
     let user = User::create(user.into_inner())?;
     Ok(HttpResponse::Ok().json(user))
 }
 
 #[post("/sign-in")]
-fn sign_in(credentials: web::Json<UserMessage>, session: Session) -> Result<HttpResponse, ApiError> {
+async fn sign_in(credentials: web::Json<UserMessage>, session: Session) -> Result<HttpResponse, ApiError> {
     let credentials = credentials.into_inner();
 
     let user = User::find_by_email(credentials.email)
@@ -37,7 +37,7 @@ fn sign_in(credentials: web::Json<UserMessage>, session: Session) -> Result<Http
 }
 
 #[post("/sign-out")]
-fn sign_out(session: Session) -> Result<HttpResponse, ApiError> {
+async fn sign_out(session: Session) -> Result<HttpResponse, ApiError> {
     let id: Option<Uuid> = session.get("user_id")?;
 
     if let Some(_) = id {
@@ -50,7 +50,7 @@ fn sign_out(session: Session) -> Result<HttpResponse, ApiError> {
 }
 
 #[get("/who-am-i")]
-fn who_am_i(session: Session) -> Result<HttpResponse, ApiError> {
+async fn who_am_i(session: Session) -> Result<HttpResponse, ApiError> {
     let id: Option<Uuid> = session.get("user_id")?;
 
     if let Some(id) = id {
