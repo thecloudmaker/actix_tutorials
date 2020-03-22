@@ -55,11 +55,12 @@ impl User {
     }
 
     pub fn update(id: Uuid, user: UserMessage) -> Result<Self, ApiError> {
+        use crate::schema::user::dsl::updated_at;
         let conn = db::connection()?;
 
         let user = diesel::update(user::table)
             .filter(user::id.eq(id))
-            .set(user)
+            .set((user_dto, updated_at.eq(Utc::now().naive_utc())))
             .get_result(&conn)?;
 
         Ok(user)
